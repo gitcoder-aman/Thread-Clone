@@ -32,7 +32,7 @@ fun NavGraph(navController : NavHostController) {
             AddThreadScreen()
         }
         composable(Routes.Profile.routes){
-            ProfileScreen()
+            ProfileScreen(navController = navController)
         }
         composable(Routes.Notification.routes){
             NotificationScreen()

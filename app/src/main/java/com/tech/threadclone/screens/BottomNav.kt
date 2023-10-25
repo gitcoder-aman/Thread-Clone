@@ -55,7 +55,7 @@ fun BottomNav(navController: NavHostController) {
                 AddThreadScreen()
             }
             composable(Routes.Profile.routes) {
-                ProfileScreen()
+                ProfileScreen(navController)
             }
         }
     }

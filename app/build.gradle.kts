@@ -82,4 +82,11 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-storage-ktx")
+
+    //coil for image load
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
+    //for observeAsState 
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
+
 }
