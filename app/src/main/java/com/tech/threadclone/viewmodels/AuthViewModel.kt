@@ -1,6 +1,7 @@
 package com.tech.threadclone.viewmodels
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
@@ -48,7 +49,7 @@ class AuthViewModel : ViewModel() {
                     Toast.makeText(context, "Login Successful", Toast.LENGTH_SHORT).show()
                 } else {
                     _error.value = null
-                    _error.postValue(it.exception?.message)
+                    _error.postValue(it.exception?.localizedMessage)
                 }
             }
     }
@@ -112,13 +113,23 @@ class AuthViewModel : ViewModel() {
         context: Context
     ) {
         val uploadTask = imageRef.putFile(imageUri.toUri())
-        var downloadUrl = ""
         uploadTask.addOnSuccessListener {
             imageRef.downloadUrl.addOnSuccessListener { imageUrl ->
-                downloadUrl = imageUrl.toString()
+               val downloadUrl = imageUrl.toString()
+                saveData(email, password, name, bio, userName, downloadUrl, uid, context)
+                Log.d("saveData", "SaveData: $email")
+                Log.d("saveData", "SaveData: $password")
+                Log.d("saveData", "SaveData: $name")
+                Log.d("saveData", "SaveData: $bio")
+                Log.d("saveData", "SaveData: $userName")
+                Log.d("saveData", "SaveData: $imageUri")
+                Log.d("saveData", "SaveData: $downloadUrl")
+                Log.d("saveData", "SaveData: $uid")
             }
+        }.addOnFailureListener {
+            Toast.makeText(context, "Image Upload Failed: $it", Toast.LENGTH_SHORT).show()
         }
-        saveData(email, password, name, bio, userName, downloadUrl, uid, context)
+
     }
 
     private fun saveData(

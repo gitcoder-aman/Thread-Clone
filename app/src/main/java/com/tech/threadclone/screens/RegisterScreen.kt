@@ -56,6 +56,7 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.tech.threadclone.R
 import com.tech.threadclone.navigation.Routes
+import com.tech.threadclone.utils.SharedRef
 import com.tech.threadclone.utils.roboto_light
 import com.tech.threadclone.utils.roboto_regular
 import com.tech.threadclone.viewmodels.AuthViewModel
@@ -140,6 +141,8 @@ fun RegisterScreen(navController: NavHostController) {
                 )
             )
             Spacer(modifier = Modifier.height(20.dp))
+
+            Log.d("addScreen", "AddThreadScreen: ${imageUri}")
 
             Image(
                 painter = if (imageUri.isEmpty()) painterResource(id = R.drawable.man)

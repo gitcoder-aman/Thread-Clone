@@ -16,23 +16,23 @@ object SharedRef {
     }
 
     fun getUserName(context: Context):String{
-        val sharedPreferences = context.getSharedPreferences("user", MODE_PRIVATE)
-        return sharedPreferences.getString("name","")!!
+        val sharedPreferences = context.getSharedPreferences("users", MODE_PRIVATE)
+        return sharedPreferences.getString("userName","")!!
     }
     fun getImageUrl(context: Context):String{
-        val sharedPreferences = context.getSharedPreferences("user", MODE_PRIVATE)
+        val sharedPreferences = context.getSharedPreferences("users", MODE_PRIVATE)
         return sharedPreferences.getString("imageUrl","")!!
     }
     fun getName(context: Context):String{
-        val sharedPreferences = context.getSharedPreferences("user", MODE_PRIVATE)
+        val sharedPreferences = context.getSharedPreferences("users", MODE_PRIVATE)
         return sharedPreferences.getString("name","")!!
     }
     fun getEmail(context: Context):String{
-        val sharedPreferences = context.getSharedPreferences("user", MODE_PRIVATE)
+        val sharedPreferences = context.getSharedPreferences("users", MODE_PRIVATE)
         return sharedPreferences.getString("email","")!!
     }
     fun getBio(context: Context):String{
-        val sharedPreferences = context.getSharedPreferences("user", MODE_PRIVATE)
+        val sharedPreferences = context.getSharedPreferences("users", MODE_PRIVATE)
         return sharedPreferences.getString("bio","")!!
     }
 }
