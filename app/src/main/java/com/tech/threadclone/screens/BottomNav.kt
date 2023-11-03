@@ -46,7 +46,7 @@ fun BottomNav(navController: NavHostController) {
                 NotificationScreen()
             }
             composable(Routes.Home.routes) {
-                HomeScreen()
+                HomeScreen(navController)
             }
             composable(Routes.Search.routes) {
                 SearchScreen()

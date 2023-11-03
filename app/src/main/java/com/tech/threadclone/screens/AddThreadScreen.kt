@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -51,6 +52,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import coil.size.Size
 import com.google.firebase.auth.FirebaseAuth
 import com.tech.threadclone.R
 import com.tech.threadclone.navigation.Routes
@@ -88,13 +91,13 @@ fun AddThreadScreen(navHostController: NavHostController) {
             Toast.makeText(context, "Permission failed", Toast.LENGTH_SHORT).show()
         }
     }
-    LaunchedEffect(isPosted){
-        if(isPosted!!){
+    LaunchedEffect(isPosted) {
+        if (isPosted) {
             threadText = ""
             imageUri = null
             Toast.makeText(context, "Thread Added", Toast.LENGTH_SHORT).show()
-            navHostController.navigate(Routes.Home.routes){
-                popUpTo(Routes.AddThread.routes){
+            navHostController.navigate(Routes.Home.routes) {
+                popUpTo(Routes.AddThread.routes) {
                     inclusive = true   //remove from backstack
                 }
             }
@@ -118,8 +121,8 @@ fun AddThreadScreen(navHostController: NavHostController) {
                     start.linkTo(parent.start)
                 }
                 .clickable {
-                    navHostController.navigate(Routes.Home.routes){
-                        popUpTo(Routes.AddThread.routes){
+                    navHostController.navigate(Routes.Home.routes) {
+                        popUpTo(Routes.AddThread.routes) {
                             inclusive = true   //remove from backstack
                         }
                     }
@@ -167,6 +170,7 @@ fun AddThreadScreen(navHostController: NavHostController) {
             value = threadText,
             onValueChange = { threadText = it },
             modifier = Modifier
+                .padding(end = 70.dp)
                 .constrainAs(editText) {
                     top.linkTo(userName.bottom)
                     start.linkTo(userName.start)
@@ -177,7 +181,7 @@ fun AddThreadScreen(navHostController: NavHostController) {
         if (imageUri == null) {
             Image(painter = painterResource(id = R.drawable.gallery_image),
                 contentDescription = "gallery",
-                modifier = Modifier
+                modifier = Modifier.size(24.dp)
                     .padding(top = 16.dp)
                     .constrainAs(attachMedia) {
                         top.linkTo(editText.bottom)
@@ -195,7 +199,7 @@ fun AddThreadScreen(navHostController: NavHostController) {
                     })
         } else {
             Box(modifier = Modifier
-                .padding(top= 4.dp)
+                .padding(top = 4.dp,end = 70.dp)
                 .constrainAs(imageBox) {
                     top.linkTo(editText.bottom)
                     start.linkTo(editText.start)
@@ -209,21 +213,21 @@ fun AddThreadScreen(navHostController: NavHostController) {
                     } else {
                         permissionLauncher.launch(permissionToRequest)
                     }
-                }
-                .height(250.dp)
-                .width(250.dp)) {
+                }) {
+
+                val model = ImageRequest.Builder(LocalContext.current)
+                    .data(imageUri)
+                    .size(Size.ORIGINAL)
+                    .crossfade(true)
+                    .build()
+                val painter = rememberAsyncImagePainter(model, placeholder = painterResource(id = R.drawable.logo))
                 Image(
-                    painter = rememberAsyncImagePainter(
-                        model = imageUri, placeholder = painterResource(
-                            id = R.drawable.man
-                        )
-                    ),
+                    painter = painter,
                     contentDescription = "imageBox",
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    contentScale = ContentScale.Crop
+                        .fillMaxWidth(),
+                    contentScale = ContentScale.FillWidth
                 )
                 Icon(
                     imageVector = Icons.Default.Close, contentDescription = "Remove Image.",
@@ -244,7 +248,9 @@ fun AddThreadScreen(navHostController: NavHostController) {
             }
         )
         TextButton(onClick = {
-            if (imageUri == null) {
+            if(imageUri == null && threadText.isEmpty()){
+                return@TextButton
+            } else if (imageUri == null) {
                 threadViewModel.saveData(
                     threadText,
                     FirebaseAuth.getInstance().currentUser?.uid!!, "", context
@@ -255,14 +261,22 @@ fun AddThreadScreen(navHostController: NavHostController) {
                     imageUri!!, context
                 )
             }
-        }, modifier = Modifier.constrainAs(button) {
-            end.linkTo(parent.end, margin = 12.dp)
-            bottom.linkTo(parent.bottom, margin = 12.dp)
-        }) {
+        }, modifier = Modifier
+            .constrainAs(button) {
+                end.linkTo(parent.end, margin = 12.dp)
+                bottom.linkTo(parent.bottom, margin = 8.dp)
+            }
+            .shadow(
+                elevation = 2.dp, shape = RoundedCornerShape(32.dp), clip = true,
+                ambientColor = Color.Transparent, spotColor = Color.Transparent
+            )
+            .background(if (threadText.isNotEmpty() || imageUri != null) Color.Black else Color.Gray)
+        ) {
             Text(
                 text = "Post", style = TextStyle(
-                    fontSize = 20.sp
-                )
+                    fontSize = 16.sp,
+                    color = Color.White
+                ), modifier = Modifier.padding(4.dp)
             )
         }
     }

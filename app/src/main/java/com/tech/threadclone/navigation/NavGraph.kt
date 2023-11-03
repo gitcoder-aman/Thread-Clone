@@ -15,7 +15,7 @@ import com.tech.threadclone.screens.SearchScreen
 import com.tech.threadclone.screens.SplashScreen
 
 @Composable
-fun NavGraph(navController : NavHostController) {
+fun NavGraph(navController: NavHostController) {
 
     NavHost(navController = navController, startDestination = Routes.Splash.routes){
 
@@ -23,7 +23,7 @@ fun NavGraph(navController : NavHostController) {
             SplashScreen(navController)
         }
         composable(Routes.Home.routes){
-            HomeScreen()
+            HomeScreen(navController)
         }
         composable(Routes.Search.routes){
             SearchScreen()
