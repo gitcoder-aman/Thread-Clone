@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -74,6 +75,8 @@ fun AddThreadScreen(navHostController: NavHostController) {
     var imageUri by remember {
         mutableStateOf<Uri?>(null)
     }
+    var interactionSource = remember { MutableInteractionSource() }
+
     val permissionToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         android.Manifest.permission.READ_MEDIA_IMAGES
     } else android.Manifest.permission.READ_EXTERNAL_STORAGE
@@ -130,7 +133,7 @@ fun AddThreadScreen(navHostController: NavHostController) {
         Text(
             text = "New Thread", style = TextStyle(
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 24.sp
+                fontSize = 20.sp
             ), modifier = Modifier.constrainAs(text) {
                 top.linkTo(crossPic.top)
                 start.linkTo(crossPic.end)
@@ -159,7 +162,7 @@ fun AddThreadScreen(navHostController: NavHostController) {
         )
         Text(
             text = SharedRef.getUserName(context), style = TextStyle(
-                fontSize = 20.sp
+                fontSize = 18.sp
             ), modifier = Modifier.constrainAs(userName) {
                 top.linkTo(logo.top)
                 start.linkTo(logo.end, margin = 10.dp)
@@ -181,13 +184,17 @@ fun AddThreadScreen(navHostController: NavHostController) {
         if (imageUri == null) {
             Image(painter = painterResource(id = R.drawable.gallery_image),
                 contentDescription = "gallery",
-                modifier = Modifier.size(24.dp)
+                alignment = Alignment.CenterStart,
+                modifier = Modifier.size(40.dp)
                     .padding(top = 16.dp)
                     .constrainAs(attachMedia) {
                         top.linkTo(editText.bottom)
                         start.linkTo(editText.start)
                     }
-                    .clickable {
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
                         val isGranted = ContextCompat.checkSelfPermission(
                             context, permissionToRequest
                         ) == PackageManager.PERMISSION_GRANTED
@@ -217,6 +224,7 @@ fun AddThreadScreen(navHostController: NavHostController) {
 
                 val model = ImageRequest.Builder(LocalContext.current)
                     .data(imageUri)
+                    .placeholder(R.drawable.placeholder_image)
                     .size(Size.ORIGINAL)
                     .crossfade(true)
                     .build()

@@ -49,7 +49,7 @@ fun BottomNav(navController: NavHostController) {
                 HomeScreen(navController)
             }
             composable(Routes.Search.routes) {
-                SearchScreen()
+                SearchScreen(navController)
             }
             composable(Routes.AddThread.routes) {
                 AddThreadScreen(navController1)

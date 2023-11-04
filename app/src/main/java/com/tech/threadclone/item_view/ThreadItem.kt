@@ -97,6 +97,7 @@ fun ThreadItem(
                 val model = ImageRequest.Builder(LocalContext.current)
                     .data(threadModel.imageUrl)
                     .size(Size.ORIGINAL)
+                    .placeholder(R.drawable.placeholder_image)
                     .crossfade(true)
                     .build()
                 val painter = rememberAsyncImagePainter(model)
