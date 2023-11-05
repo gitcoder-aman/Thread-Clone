@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -27,9 +28,10 @@ class SearchViewModel : ViewModel() {
         users.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val result = mutableListOf<UserModel>()
-                for(threadSnapshot in snapshot.children){
-                    val thread = threadSnapshot.getValue(UserModel::class.java)
-                    result.add(thread!!)
+                for(userSnapshot in snapshot.children){
+                    val userModel = userSnapshot.getValue(UserModel::class.java)
+                    if(userModel?.uid != FirebaseAuth.getInstance().uid)
+                    result.add(userModel!!)
                 }
                 onResult(result)
             }

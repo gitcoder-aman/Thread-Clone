@@ -79,6 +79,7 @@ class AuthViewModel : ViewModel() {
         imageUri: String,
         context: Context
     ) {
+        Log.d("register@@", "register: $imageUri")
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
@@ -127,7 +128,7 @@ class AuthViewModel : ViewModel() {
                 Log.d("saveData", "SaveData: $uid")
             }
         }.addOnFailureListener {
-            Toast.makeText(context, "Image Upload Failed: $it", Toast.LENGTH_SHORT).show()
+            saveData(email, password, name, bio, userName, "", uid, context)
         }
 
     }

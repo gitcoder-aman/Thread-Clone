@@ -57,7 +57,7 @@ fun SplashScreen(navController: NavHostController) {
     }
 
     LaunchedEffect(true) {
-        delay(3000)
+        delay(500)
 
         if (FirebaseAuth.getInstance().currentUser != null) {
             navController.navigate(Routes.BottomNav.routes){

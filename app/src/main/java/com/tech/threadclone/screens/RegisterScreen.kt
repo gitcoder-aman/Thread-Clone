@@ -146,7 +146,7 @@ fun RegisterScreen(navController: NavHostController) {
 
             Image(
                 painter = if (imageUri.isEmpty()) painterResource(id = R.drawable.man)
-                else rememberAsyncImagePainter(model = imageUri),
+                else rememberAsyncImagePainter(model = imageUri, placeholder = painterResource(id = R.drawable.man)),
                 contentDescription = "person",
                 modifier = Modifier
                     .size(96.dp)

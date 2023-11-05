@@ -148,7 +148,7 @@ fun AddThreadScreen(navHostController: NavHostController) {
         Image(painter = rememberAsyncImagePainter(
             model = SharedRef.getImageUrl(context), placeholder = painterResource(
                 id = R.drawable.man
-            )
+            ), error = painterResource(id = R.drawable.man)
         ), contentDescription = "image",
             modifier = Modifier
                 .padding(start = 16.dp)
@@ -185,7 +185,8 @@ fun AddThreadScreen(navHostController: NavHostController) {
             Image(painter = painterResource(id = R.drawable.gallery_image),
                 contentDescription = "gallery",
                 alignment = Alignment.CenterStart,
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier
+                    .size(40.dp)
                     .padding(top = 16.dp)
                     .constrainAs(attachMedia) {
                         top.linkTo(editText.bottom)
@@ -206,7 +207,7 @@ fun AddThreadScreen(navHostController: NavHostController) {
                     })
         } else {
             Box(modifier = Modifier
-                .padding(top = 4.dp,end = 70.dp)
+                .padding(top = 4.dp, end = 70.dp)
                 .constrainAs(imageBox) {
                     top.linkTo(editText.bottom)
                     start.linkTo(editText.start)
