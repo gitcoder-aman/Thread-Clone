@@ -31,14 +31,14 @@ import com.tech.threadclone.utils.roboto_regular
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomNav(navController: NavHostController) {
-    val navController1 = rememberNavController()
+fun BottomNav(screenNavController: NavHostController) {
+    val bottomNavController = rememberNavController()
 
     Scaffold(
-        bottomBar = { MyBottomBar(navController1) }
+        bottomBar = { MyBottomBar(bottomNavController) }
     ) { innerPadding ->
         NavHost(
-            navController = navController1,
+            navController = bottomNavController,
             startDestination = Routes.Home.routes,
             modifier = Modifier.padding(innerPadding)
         ) {
@@ -46,16 +46,16 @@ fun BottomNav(navController: NavHostController) {
                 NotificationScreen()
             }
             composable(Routes.Home.routes) {
-                HomeScreen(navController)
+                HomeScreen(screenNavController)
             }
             composable(Routes.Search.routes) {
-                SearchScreen(navController)
+                SearchScreen(screenNavController)
             }
             composable(Routes.AddThread.routes) {
-                AddThreadScreen(navController1)
+                AddThreadScreen(bottomNavController)
             }
             composable(Routes.Profile.routes) {
-                ProfileScreen(navController)
+                ProfileScreen(screenNavController)
             }
         }
     }

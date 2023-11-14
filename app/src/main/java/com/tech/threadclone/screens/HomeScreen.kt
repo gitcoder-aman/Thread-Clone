@@ -21,13 +21,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.google.firebase.auth.FirebaseAuth
 import com.tech.threadclone.R
 import com.tech.threadclone.item_view.ThreadItem
 import com.tech.threadclone.viewmodels.HomeViewModel
 
 @Composable
-fun HomeScreen(navHostController: NavHostController) {
+fun HomeScreen(screenNavController: NavHostController) {
 
     val homeViewModel: HomeViewModel = viewModel()
     val threadAndUser by homeViewModel.threadsAndUsers.observeAsState(null)
@@ -61,8 +60,7 @@ fun HomeScreen(navHostController: NavHostController) {
             }
             items(threadAndUser ?: emptyList()) { pair ->
                 ThreadItem(
-                    threadModel = pair.first, userModel = pair.second, navHostController,
-                    FirebaseAuth.getInstance().currentUser?.uid!!
+                    threadModel = pair.first, userModel = pair.second, screenNavController
                 )
             }
         }

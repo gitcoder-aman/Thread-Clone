@@ -30,18 +30,26 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.auth.FirebaseAuth
 import com.tech.threadclone.R
 import com.tech.threadclone.models.UserModel
+import com.tech.threadclone.navigation.Routes
 
 @Composable
 fun UserItem(
     userModel: UserModel,
-    navHostController: NavHostController
+    screenNavController: NavHostController,
 ) {
     var isFollowing by remember { mutableStateOf(false) }
 
     ConstraintLayout(
-        modifier = Modifier
+        modifier = Modifier.clickable {
+            if(userModel.uid != FirebaseAuth.getInstance().uid) {
+                val routes =
+                    Routes.OtherUserProfile.routes.replace("{uid}", userModel.uid!!)
+                screenNavController.navigate(routes)
+            }
+        }
             .background(Color.White)
             .padding(top = 12.dp)
             .fillMaxSize()
