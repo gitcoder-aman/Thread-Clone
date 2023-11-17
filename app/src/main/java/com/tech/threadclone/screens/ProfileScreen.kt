@@ -71,7 +71,17 @@ fun ProfileScreen(
     val profileViewModel : ProfileViewModel = viewModel()
     val threads by profileViewModel.threads.observeAsState(null)
     val allUsers by profileViewModel.allUsers.observeAsState(null)
+    val followersList by profileViewModel.followersList.observeAsState(null)
+    val followingList by profileViewModel.followingList.observeAsState(null)
 
+    var currentUserId = ""
+    if (FirebaseAuth.getInstance().currentUser?.uid != null)
+        currentUserId = FirebaseAuth.getInstance().currentUser?.uid!!
+
+    if(currentUserId != "") {
+        profileViewModel.getFollowers(currentUserId)
+        profileViewModel.getFollowing(currentUserId)
+    }
     val context = LocalContext.current
 
     val interactionSource = remember {
@@ -101,7 +111,7 @@ fun ProfileScreen(
                         .background(Color.White)
                 ) {
                     val ( privacyBtn, settingBtn, instaBtn,bio, userLogo, userName,
-                        name, totalFollowers, editBtn, shareBtn, suggestText, lazyRow, divider, tabRow) = createRefs()
+                        name, totalFollowers,totalFollowing, editBtn, shareBtn, suggestText, lazyRow, divider, tabRow) = createRefs()
 
                     Icon(
                         painter = painterResource(id = R.drawable.internet),
@@ -206,7 +216,7 @@ fun ProfileScreen(
                             }
                     )
                     Text(
-                        text = "28 followers", style = TextStyle(
+                        text = "${followersList?.size} followers", style = TextStyle(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.W300,
                             fontFamily = roboto_regular,
@@ -216,6 +226,20 @@ fun ProfileScreen(
                             .constrainAs(totalFollowers) {
                                 top.linkTo(bio.bottom, margin = 12.dp)
                                 start.linkTo(parent.start)
+                            }
+                    )
+                    Text(
+                        text = "${followingList?.size} following", style = TextStyle(
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.W300,
+                            fontFamily = roboto_regular,
+                            color = DarkGray
+                        ), modifier = Modifier
+                            .padding(start = 16.dp)
+                            .constrainAs(totalFollowing) {
+                                start.linkTo(totalFollowers.end, margin = 8.dp)
+                                top.linkTo(totalFollowers.top)
+                                bottom.linkTo(totalFollowers.bottom)
                             }
                     )
                     Box(
@@ -309,7 +333,7 @@ fun ProfileScreen(
                             .padding(
                                 top = 16.dp,
                                 start = if ((isScrollProgress.value && canScrollBackward.value) || (itemIndex.value != 0)) 0.dp else 16.dp,
-                                end = if ((isScrollProgress.value && canScrollForward.value) || (itemIndex.value != 27)) 0.dp else 16.dp,
+                                end = if ((isScrollProgress.value && canScrollForward.value) || (itemIndex.value != allUsers?.size?.minus(2))) 0.dp else 16.dp,
                                 bottom = 4.dp
                             )
                             .constrainAs(lazyRow) {
@@ -317,7 +341,8 @@ fun ProfileScreen(
                                 start.linkTo(parent.start)
                             }) {
                         items(allUsers ?: emptyList()) {user->
-                            SuggestItem(userModel = user,navHostController = navController)
+                            if(user.uid != currentUserId)
+                            SuggestItem(userModel = user,navHostController = navController,profileViewModel)
                         }
 
                     }

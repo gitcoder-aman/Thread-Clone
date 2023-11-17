@@ -13,6 +13,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.tech.threadclone.models.UserModel
@@ -96,11 +97,21 @@ class AuthViewModel : ViewModel() {
                         auth.currentUser?.uid,
                         context
                     )
+                    followersFirestoreDBCreate()
                 } else {
                     _error.value = null
                     _error.postValue(it.exception?.message)
                 }
             }
+    }
+
+    private fun followersFirestoreDBCreate() {
+        val firestoredb = Firebase.firestore
+        val followersRef = firestoredb.collection("followers").document(FirebaseAuth.getInstance().currentUser?.uid!!)
+        val followingRef = firestoredb.collection("following").document(FirebaseAuth.getInstance().currentUser?.uid!!)
+
+        followersRef.set(mapOf("followersIds" to listOf<String>()))
+        followingRef.set(mapOf("followingIds" to listOf<String>()))
     }
 
     private fun saveImage(

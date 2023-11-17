@@ -24,8 +24,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,20 +41,38 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.auth.FirebaseAuth
 import com.tech.threadclone.R
 import com.tech.threadclone.models.UserModel
 import com.tech.threadclone.navigation.Routes
 import com.tech.threadclone.ui.theme.DarkGray
 import com.tech.threadclone.ui.theme.LightGray
 import com.tech.threadclone.utils.roboto_regular
+import com.tech.threadclone.viewmodels.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuggestItem(
     userModel: UserModel,
-    navHostController: NavHostController
+    navHostController: NavHostController,
+    profileViewModel: ProfileViewModel
 ) {
-    var interactionSource = remember { MutableInteractionSource() }
+    val interactionSource = remember { MutableInteractionSource() }
+    var isFollowing by rememberSaveable { mutableStateOf(false) }
+    val suggestFollowersList by profileViewModel.followingList.observeAsState(null)
+
+
+    var currentUserId = ""
+    if (FirebaseAuth.getInstance().currentUser?.uid != null)
+        currentUserId = FirebaseAuth.getInstance().currentUser?.uid!!
+
+    if(currentUserId != ""){
+        profileViewModel.getFollowing(currentUserId)
+    }
+    if (!suggestFollowersList.isNullOrEmpty() && suggestFollowersList!!.contains(userModel.uid)){
+        isFollowing = true
+    }
+
 
     Card(
         onClick = {
@@ -122,16 +142,21 @@ fun SuggestItem(
                     )
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                CustomFollowButton()
+                CustomFollowButton(isFollowing){
+                    if(!isFollowing) {
+                        profileViewModel.followUsers(userModel.uid!!, currentUserId)
+                    }else{
+                        profileViewModel.unFollowUser(userModel.uid!!,currentUserId)
+                        isFollowing = false
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun CustomFollowButton() {
-    var isFollowing by remember { mutableStateOf(false) }
-
+fun CustomFollowButton(isFollowing: Boolean, onClick:()->Unit) {
     Box(
         modifier = Modifier
             .padding(start = 4.dp)
@@ -144,7 +169,8 @@ fun CustomFollowButton() {
             )
             .background(if (isFollowing) Color.Transparent else Color.Black)
             .clickable {
-                isFollowing = !isFollowing
+//                isFollowing = !isFollowing
+                onClick()
             }, contentAlignment = Alignment.Center
     ) {
         Text(

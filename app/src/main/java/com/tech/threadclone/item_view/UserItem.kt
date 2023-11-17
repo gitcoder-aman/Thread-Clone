@@ -14,8 +14,10 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,20 +30,36 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.auth.FirebaseAuth
 import com.tech.threadclone.R
 import com.tech.threadclone.models.UserModel
 import com.tech.threadclone.navigation.Routes
+import com.tech.threadclone.viewmodels.ProfileViewModel
 
 @Composable
 fun UserItem(
     userModel: UserModel,
     screenNavController: NavHostController,
 ) {
-    var isFollowing by remember { mutableStateOf(false) }
+    var isFollowing by rememberSaveable { mutableStateOf(false) }
 
+    val profileViewModel : ProfileViewModel = viewModel()
+    val suggestFollowersList by profileViewModel.followingList.observeAsState(null)
+
+
+    var currentUserId = ""
+    if (FirebaseAuth.getInstance().currentUser?.uid != null)
+        currentUserId = FirebaseAuth.getInstance().currentUser?.uid!!
+
+    if(currentUserId != ""){
+        profileViewModel.getFollowing(currentUserId)
+    }
+    if (!suggestFollowersList.isNullOrEmpty() && suggestFollowersList!!.contains(userModel.uid)){
+        isFollowing = true
+    }
     ConstraintLayout(
         modifier = Modifier.clickable {
             if(userModel.uid != FirebaseAuth.getInstance().uid) {
@@ -103,7 +121,12 @@ fun UserItem(
                 )
                 .background(Color.White)
                 .clickable {
-                    isFollowing = !isFollowing
+                    if(!isFollowing) {
+                        profileViewModel.followUsers(userModel.uid!!, currentUserId)
+                    }else{
+                        profileViewModel.unFollowUser(userModel.uid!!,currentUserId)
+                        isFollowing = false
+                    }
                 }, contentAlignment = Alignment.Center
         ) {
             Text(

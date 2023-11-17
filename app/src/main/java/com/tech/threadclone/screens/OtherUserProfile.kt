@@ -83,18 +83,27 @@ fun OtherUserProfile(navController: NavHostController, uid: String?) {
     val threads by profileViewModel.threads.observeAsState(null)
     val userModel by profileViewModel.users.observeAsState(null)
     val allUsers by profileViewModel.allUsers.observeAsState(null)
-    val context = LocalContext.current
+    val followersList by profileViewModel.followersList.observeAsState(null)
+    val followingList by profileViewModel.followingList.observeAsState(null)
 
     profileViewModel.fetchThreads(uid!!)
     profileViewModel.fetchUser(uid)
+    profileViewModel.getFollowers(uid)
+    profileViewModel.getFollowing(uid)
 
     val interactionSource = remember {
         MutableInteractionSource()
     }
     var isFollowing by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
-    var isSheetOpen = rememberSaveable {
+    val isSheetOpen = rememberSaveable {
         mutableStateOf(false)
+    }
+    var currentUserId = ""
+    if (FirebaseAuth.getInstance().currentUser?.uid != null)
+        currentUserId = FirebaseAuth.getInstance().currentUser?.uid!!
+    if (followersList != null && followersList?.isNotEmpty() == true && followersList?.contains(currentUserId) == true){
+        isFollowing = true
     }
 
     LazyColumn(
@@ -109,7 +118,7 @@ fun OtherUserProfile(navController: NavHostController, uid: String?) {
                     .background(Color.White)
             ) {
                 val (privacyBtn, settingBtn, instaBtn, bio, userLogo, userName,
-                    name, totalFollowers, editBtn, shareBtn, suggestText, lazyRow, divider, tabRow) = createRefs()
+                    name, totalFollowers, totalFollowings, box1, box2, suggestText, lazyRow, divider, tabRow) = createRefs()
 
                 Icon(
                     imageVector = Icons.Outlined.ArrowBack,
@@ -223,7 +232,7 @@ fun OtherUserProfile(navController: NavHostController, uid: String?) {
                         }
                 )
                 Text(
-                    text = "28 followers", style = TextStyle(
+                    text = "${followersList?.size} followers", style = TextStyle(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.W300,
                         fontFamily = roboto_regular,
@@ -235,13 +244,28 @@ fun OtherUserProfile(navController: NavHostController, uid: String?) {
                             start.linkTo(parent.start)
                         }
                 )
+                Text(
+                    text = "${followingList?.size} following", style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.W300,
+                        fontFamily = roboto_regular,
+                        color = DarkGray
+                    ), modifier = Modifier
+                        .padding(start = 16.dp)
+                        .constrainAs(totalFollowings) {
+                            start.linkTo(totalFollowers.end, margin = 8.dp)
+                            top.linkTo(totalFollowers.top)
+                            bottom.linkTo(totalFollowers.bottom)
+                        }
+                )
+
                 Box(
                     modifier = Modifier
                         .padding(start = 16.dp, end = 4.dp)
-                        .constrainAs(editBtn) {
+                        .constrainAs(box1) {
                             top.linkTo(totalFollowers.bottom, margin = 20.dp)
                             start.linkTo(parent.start)
-                            end.linkTo(shareBtn.start)
+                            end.linkTo(box2.start)
                             width = Dimension.fillToConstraints
                         }
                         .size(150.dp, 30.dp)
@@ -251,13 +275,21 @@ fun OtherUserProfile(navController: NavHostController, uid: String?) {
                             Color.Gray,
                             RoundedCornerShape(8.dp)
                         )
-                        .background(if (isFollowing) Color.Transparent else Color.Black)
+                        .background(
+                            if (isFollowing) Color.Transparent else Color.Black
+                        )
                         .clickable {
-                            isFollowing = !isFollowing
+                            if(!isFollowing) {
+                                profileViewModel.followUsers(uid, currentUserId)
+                            }else{
+                                profileViewModel.unFollowUser(uid,currentUserId)
+                                isFollowing = false
+                            }
+
                         }, contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Follow",
+                        text = if (isFollowing) "Following" else "Follow",
                         style = TextStyle(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.W600,
@@ -268,11 +300,11 @@ fun OtherUserProfile(navController: NavHostController, uid: String?) {
                 Box(
                     modifier = Modifier
                         .padding(start = 4.dp, end = 16.dp)
-                        .constrainAs(shareBtn) {
-                            top.linkTo(editBtn.top)
+                        .constrainAs(box2) {
+                            top.linkTo(box1.top)
                             end.linkTo(parent.end)
-                            start.linkTo(editBtn.end)
-                            bottom.linkTo(editBtn.bottom)
+                            start.linkTo(box1.end)
+                            bottom.linkTo(box1.bottom)
                             width = Dimension.fillToConstraints
                         }
                         .size(150.dp, 30.dp)
@@ -305,7 +337,7 @@ fun OtherUserProfile(navController: NavHostController, uid: String?) {
                     ), modifier = Modifier
                         .padding(top = 20.dp, start = 16.dp)
                         .constrainAs(suggestText) {
-                            top.linkTo(editBtn.bottom)
+                            top.linkTo(box1.bottom)
                             start.linkTo(parent.start)
                         }
                 )
@@ -326,7 +358,7 @@ fun OtherUserProfile(navController: NavHostController, uid: String?) {
                         .padding(
                             top = 16.dp,
                             start = if ((isScrollProgress.value && canScrollBackward.value) || (itemIndex.value != 0)) 0.dp else 16.dp,
-                            end = if ((isScrollProgress.value && canScrollForward.value) || (itemIndex.value != 27)) 0.dp else 16.dp,
+                            end = if ((isScrollProgress.value && canScrollForward.value) || (itemIndex.value != allUsers?.size?.minus(2))) 0.dp else 16.dp,
                             bottom = 4.dp
                         )
                         .constrainAs(lazyRow) {
@@ -336,7 +368,11 @@ fun OtherUserProfile(navController: NavHostController, uid: String?) {
                     items(allUsers ?: emptyList()) { user ->
 
                         if (user.uid != userModel?.uid && user.uid != FirebaseAuth.getInstance().uid)
-                            SuggestItem(userModel = user, navHostController = navController)
+                            SuggestItem(
+                                userModel = user,
+                                navHostController = navController,
+                                profileViewModel = profileViewModel
+                            )
                     }
 
                 }
